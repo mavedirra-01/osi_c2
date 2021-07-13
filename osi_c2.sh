@@ -4,10 +4,17 @@ g=`tput setaf 2`
 y=`tput setaf 3`
 rc=`tput sgr0`
 # End VARS
+USERNAME=$(getent passwd | awk -F: '$3 == 1000 {print $1}')
 if [ "$1" == "--build" ] ; then
 	docker build -t osi_listener `pwd`/dockerfiles/listener/ # change to docker compose to avoid pull errors
 	docker build -t osi_webserver `pwd`/dockerfiles/webserver
 	docker build -t osi_csharp `pwd`/dockerfiles/payloads/dotnet
+	exit
+fi
+if [ "$1" == "--install" ] ; then
+	sudo usermod -aG docker $USERNAME
+	sudo apt update && curl https://get.docker.com/ | sudo sh
+	exit
 fi
 printf "${g}Type help for options, type q! to quit.${rc}\n"
 while true ; do
