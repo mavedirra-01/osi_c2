@@ -10,7 +10,7 @@ if [ "$1" == "--build" ] ; then
 	docker build -t osi_webserver `pwd`/dockerfiles/webserver
 	docker build -t osi_csharp `pwd`/dockerfiles/payloads/dotnet
   docker build -t osiris `pwd`/dockerfiles/machines/osiris
-  docker build -t juiceShop `pwd`/dockerfiles/machines/juiceshop 
+  docker build -t juiceshop `pwd`/dockerfiles/machines/juiceshop 
 	exit
 fi
 if [ "$1" == "--install" ] ; then
