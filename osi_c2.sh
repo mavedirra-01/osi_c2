@@ -9,8 +9,8 @@ if [ "$1" == "--build" ] ; then
 	docker build -t osi_listener `pwd`/dockerfiles/listener/ # change to docker compose to avoid pull errors
 	docker build -t osi_webserver `pwd`/dockerfiles/webserver
 	docker build -t osi_csharp `pwd`/dockerfiles/payloads/dotnet
-  docker build -t osiris `pwd`/dockerfiles/machines/osiris
-  docker build -t juiceshop `pwd`/dockerfiles/machines/juiceshop 
+  	docker build -t osiris `pwd`/dockerfiles/machines/osiris
+  	docker build -t juiceshop `pwd`/dockerfiles/machines/juiceshop 
 	exit
 fi
 if [ "$1" == "--install" ] ; then
@@ -57,7 +57,6 @@ while true ; do
         fi
     fi
   fi
-
 	while [ "$OPTION" == "payloads" ] ; do
 		cat <<-_EOF_
 			*SELECT A PAYLOAD*
