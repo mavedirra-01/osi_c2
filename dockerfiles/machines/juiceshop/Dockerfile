@@ -32,4 +32,3 @@ RUN mkdir logs && \
 USER 1001
 EXPOSE 3000
 CMD ["npm", "start"]
-
