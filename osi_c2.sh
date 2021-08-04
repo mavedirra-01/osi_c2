@@ -45,16 +45,16 @@ while true ; do
       fi
     fi
     if [ "$LAB" -eq "2" ]; then
-    ┊ cd ~/SecGen && ruby secgen.rb run && cd -
-    ┊ ┊ if [ "$?" -eq "0" ]; then
-    ┊ ┊ ┊ echo -e "Vulnerable machine setup, scan for it on your network\n"
-    ┊ ┊ fi
+      cd ~/SecGen && ruby secgen.rb run && cd -
+        if [ "$?" -eq "0" ]; then
+      echo -e "Vulnerable machine setup, scan for it on your network\n"
+        fi
     fi
     if [ "$LAB" -eq "3" ]; then
       docker run -d -p 3000:3000 -v `pwd`/volumes/osiris:/share osiris:latest
-   ┊ ┊ if [ "$?" -eq "0" ]; then
-   ┊ ┊ ┊ echo -e "Osiris setup, go to localhost:3000\n"
-   ┊ ┊ fi
+        if [ "$?" -eq "0" ]; then
+          echo -e "Osiris setup, go to localhost:3000\n"
+        fi
     fi
   fi
 
