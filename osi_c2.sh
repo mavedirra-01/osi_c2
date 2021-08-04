@@ -9,6 +9,8 @@ if [ "$1" == "--build" ] ; then
 	docker build -t osi_listener `pwd`/dockerfiles/listener/ # change to docker compose to avoid pull errors
 	docker build -t osi_webserver `pwd`/dockerfiles/webserver
 	docker build -t osi_csharp `pwd`/dockerfiles/payloads/dotnet
+  docker build -t osiris `pwd`/dockerfiles/machines/osiris
+  docker build -t juiceShop `pwd`/dockerfiles/machines/juiceshop 
 	exit
 fi
 if [ "$1" == "--install" ] ; then
@@ -27,6 +29,35 @@ while true ; do
 			printf "${g}[+]${rc} Webserver started\n"
 		fi
 	fi
+  if [ "$OPTION" == "lab" ]; then
+    cat <<-_EOF_
+        *SELECT A OPTION*
+ [1] - WEB-APP
+ [2] - RANDOM VULNERABLE MACHINE (SECGEN)
+ [3] - BROWSER KALI 
+ [4] - EXIT
+      _EOF_
+    read -p "${r}[LAB]>>> ${rc}" LAB
+    if [ "$LAB" -eq "1" ]; then
+      docker run -d -p 9001:3000 juiceShop:latest
+      if [ "$?" -eq "0" ]; then
+        echo -e "juiceShop setup sucesfully, running on port 9001\n"
+      fi
+    fi
+    if [ "$LAB" -eq "2" ]; then
+    ┊ cd ~/SecGen && ruby secgen.rb run && cd -
+    ┊ ┊ if [ "$?" -eq "0" ]; then
+    ┊ ┊ ┊ echo -e "Vulnerable machine setup, scan for it on your network\n"
+    ┊ ┊ fi
+    fi
+    if [ "$LAB" -eq "3" ]; then
+      docker run -d -p 3000:3000 -v `pwd`/volumes/osiris:/share osiris:latest
+   ┊ ┊ if [ "$?" -eq "0" ]; then
+   ┊ ┊ ┊ echo -e "Osiris setup, go to localhost:3000\n"
+   ┊ ┊ fi
+    fi
+  fi
+
 	while [ "$OPTION" == "payloads" ] ; do
 		cat <<-_EOF_
 			*SELECT A PAYLOAD*
