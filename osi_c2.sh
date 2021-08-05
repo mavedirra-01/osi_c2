@@ -6,16 +6,16 @@ rc=`tput sgr0`
 # End VARS
 USERNAME=$(getent passwd | awk -F: '$3 == 1000 {print $1}')
 if [ "$1" == "--build" ] ; then
-	podman build -t osi_listener `pwd`/podmanfiles/listener/ # change to podman compose to avoid pull errors
-	podman build -t osi_webserver `pwd`/podmanfiles/webserver
-	podman build -t osi_csharp `pwd`/podmanfiles/payloads/dotnet
-  podman build -t osiris `pwd`/podmanfiles/machines/osiris
-  podman build -t juiceshop `pwd`/podmanfiles/machines/juiceshop 
+	docker build -t osi_listener `pwd`/dockerfiles/listener/ # change to docker compose to avoid pull errors
+	docker build -t osi_webserver `pwd`/dockerfiles/webserver/
+	docker build -t osi_csharp `pwd`/dockerfiles/payloads/dotnet/
+  podman build -t osiris `pwd`/dockerfiles/machines/osiris/
+  docker build -t juiceshop `pwd`/dockerfiles/machines/juiceshop/
 	exit
 fi
 if [ "$1" == "--install" ] ; then
-	sudo usermod -aG podman $USERNAME
-	sudo apt update && curl https://get.podman.com/ | sudo sh
+	sudo usermod -aG docker $USERNAME
+	sudo apt update && curl https://get.docker.com/ | sudo sh
 	exit
 fi
 printf "${g}Type help for options, type q! to quit.${rc}\n"
@@ -24,7 +24,7 @@ while true ; do
 	read -e -p "${y}>>> ${rc}" OPTION
 	cd - > /dev/null
 	if [ "$OPTION" == "webserver" ]; then
-		podman run  --restart=unless-stopped -it -d -v `pwd`/www:/var/www/html/ --name osi_webserver -p 80:80 osi_webserver:latest &>/dev/null
+		docker run  --restart=unless-stopped -it -d -v `pwd`/www:/var/www/html/ --name osi_webserver -p 80:80 osi_webserver:latest &>/dev/null
 		if [ "$?" -eq "0" ] ; then
 			printf "${g}[+]${rc} Webserver started\n"
 		fi
@@ -38,7 +38,7 @@ while true ; do
 [5] - EXIT \n"
     read -p "${r}[LAB]>>> ${rc}" LAB
     if [ "$LAB" -eq "1" ]; then
-      podman run -d -p 9001:3000 --name juiceshop juiceshop:latest &> /dev/null
+      docker run -d -p 9001:3000 --name juiceshop juiceshop:latest &> /dev/null
       if [ "$?" -eq "0" ]; then
         echo -e "juiceShop setup sucesfully, running on port 9001\n"
       fi
@@ -50,13 +50,13 @@ while true ; do
         fi
     fi
     if [ "$LAB" -eq "3" ]; then
-      podman run -d -p 3000:3000 --name osiris -v `pwd`/volumes/osiris:/share osiris:latest 
+      podman run -d -p 3000:3000 --restart=unless-stopped --name osiris -v `pwd`/volumes/osiris:/share localhost/osiris:latest &> /dev/null
         if [ "$?" -eq "0" ]; then
           echo -e "Osiris setup, go to localhost:3000\n"
         fi
     fi
     if [ "$LAB" -eq "4" ]; then
-      podman ps 
+      docker ps 
     fi
     if [ "$LAB" -eq "5" ]; then
       break
@@ -102,8 +102,8 @@ while true ; do
 			if [ "$PAYLOAD" == "3" ]; then
         read -p "Payload Port: " PORT
         read -p "Payload IP: " IP
-        cp `pwd`/podmanfiles/payloads/dotnet/main.cs `pwd`/www && sed -i "s/PORT/$PORT/;s/IP/$IP/" `pwd`/www/main.cs
-				podman run --name osi_dotnet -it -d -v `pwd`/www:www osi_csharp:latest /bin/compile.sh -b &>/dev/null
+        cp `pwd`/dockerfiles/payloads/dotnet/main.cs `pwd`/www && sed -i "s/PORT/$PORT/;s/IP/$IP/" `pwd`/www/main.cs
+				docker run --name osi_dotnet -it -d -v `pwd`/www:www osi_csharp:latest /bin/compile.sh -b &>/dev/null
         if [ "$?" -eq "0" ] ; then
             printf "${g}[+]${rc} Payload created...\n"
             sed -i "s/$PORT/PORT/;s/$IP/IP/" `pwd`/payloads/csharp/main.cs # reset vars
@@ -135,8 +135,8 @@ while true ; do
 			if [ "$?" -eq "1" ] ; then
         printf "Del Usage:\n${g}del listener_name\n"
 			else
-				podman kill $DELETE &>/dev/null
-				podman rm $DELETE &>/dev/null
+				docker kill $DELETE &>/dev/null
+				docker rm $DELETE &>/dev/null
         rm .listeners/$DELETE
        	rm -r `pwd`/volumes/listeners/$DELETE
 				if [ "$?" -eq "0" ] ; then
@@ -149,7 +149,7 @@ while true ; do
 			read -p "${g}Port: ${rc}" port # find better way to do these
 			if [[ "$port" -ge 1 && "$port" -le 65535 ]]; then
 				echo -e "listener_name=$listener_name\nport=$port" > /tmp/vars.out && mkdir -p `pwd`/volumes/listeners/$listener_name && cp /tmp/vars.out `pwd`/volumes/listeners/$listener_name/
-				podman run -d -it -p $port:$port --name $listener_name -v `pwd`/volumes/listeners/$listener_name:/config osi_listener:latest /usr/local/bin/startpwncat.sh -b &> /dev/null
+				docker run -d -it -p $port:$port --name $listener_name -v `pwd`/volumes/listeners/$listener_name:/config osi_listener:latest /usr/local/bin/startpwncat.sh -b &> /dev/null
 			else
 				printf "Try again with a valid port\n"
 				break
@@ -162,13 +162,13 @@ while true ; do
       fi
 			touch .listeners/$listener_name
 			tmux new -s $listener_name -d
-			tmux send-keys 'source /tmp/vars.out && clear && echo "listening on port $port" && podman attach $listener_name' C-m
+			tmux send-keys 'source /tmp/vars.out && clear && echo "listening on port $port" && docker attach $listener_name' C-m
 			break
 		done
 		if [[ "$LISTENERS" == "show" ]] ; then
 			printf "${y}Active Listeners${rc}\n"
 			echo "CONTAINER ID   IMAGE                    COMMAND                  CREATED          STATUS          PORTS                                            NAMES"
-                	podman ps -a | grep "osi_listener"
+                	docker ps -a | grep "osi_listener"
 		fi
 		while [[ "$LISTENERS" == "interact" ]] ; do
 			cd .listeners &>/dev/null
