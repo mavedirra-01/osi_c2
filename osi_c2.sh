@@ -9,13 +9,14 @@ if [ "$1" == "--build" ] ; then
 	docker build -t osi_listener `pwd`/dockerfiles/listener/ # change to docker compose to avoid pull errors
 	docker build -t osi_webserver `pwd`/dockerfiles/webserver/
 	docker build -t osi_csharp `pwd`/dockerfiles/payloads/dotnet/
-  podman build -t osiris `pwd`/dockerfiles/machines/osiris/
+  docker build -t osiris `pwd`/dockerfiles/machines/osiris/
   docker build -t juiceshop `pwd`/dockerfiles/machines/juiceshop/
+  docker build -t android-s8 `pwd`/dockerfiles/machines/android/
 	exit
 fi
 if [ "$1" == "--install" ] ; then
 	sudo usermod -aG docker $USERNAME
-	sudo apt update && curl https://get.docker.com/ | sudo sh
+	curl https://get.docker.com/ | sudo sh
 	exit
 fi
 printf "${g}Type help for options, type q! to quit.${rc}\n"
@@ -34,8 +35,9 @@ while true ; do
 [1] - WEB-APP
 [2] - RANDOM VULNERABLE MACHINE (SECGEN)
 [3] - BROWSER KALI 
-[4] - RUNNING CONTAINERS
+[4] - ANDROID EMULATOR
 [5] - EXIT \n"
+		docker ps
     read -p "${r}[LAB]>>> ${rc}" LAB
     if [ "$LAB" -eq "1" ]; then
       docker run -d -p 9001:3000 --name juiceshop juiceshop:latest &> /dev/null
@@ -44,19 +46,29 @@ while true ; do
       fi
     fi
     if [ "$LAB" -eq "2" ]; then
-      cd ~/SecGen && ruby secgen.rb run &> /dev/null && cd - &> /dev/null
+      cd ~/SecGen && ruby secgen.rb run &> /dev/null && cd - &> /dev/null ### add way to provison machine with VPN
         if [ "$?" -eq "0" ]; then
       	echo -e "Vulnerable machine setup, scan for it on your network\n"
         fi
     fi
     if [ "$LAB" -eq "3" ]; then
-      podman run -d -p 3000:3000 --restart=unless-stopped --name osiris -v `pwd`/volumes/osiris:/share localhost/osiris:latest &> /dev/null
+      docker run -d --cap-add=NET_ADMIN --restart=unless-stopped --name osiris -v `pwd`/volumes/osiris:/share mavedirra/osiris:latest &> /dev/null
+      docker logs osiris
         if [ "$?" -eq "0" ]; then
-          echo -e "Osiris setup, go to localhost:3000\n"
+          echo -e "Osiris setup."
         fi
     fi
     if [ "$LAB" -eq "4" ]; then
-      docker ps 
+       docker run --privileged -d -p 6080:6080 -p 5554:5554 -p 5555:5555 -e DEVICE="Samsung Galaxy S8" --name android-s8 android-s8:latest
+       if [ "$?" -eq "0" ]; then
+          read -p "Samsung Galaxy S8 setup, access the shell now? [Y]: " SHELL
+        fi
+        	if [ "$SHELL" == "y" ]; then
+        		adb connect localhost:5555 &> /dev/null
+        		adb shell
+        	else
+        	break 
+        	fi 
     fi
     if [ "$LAB" -eq "5" ]; then
       break
