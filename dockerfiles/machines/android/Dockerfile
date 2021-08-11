@@ -1,1 +1,1 @@
-FROM budtmo/docker-android-x86-8.1
+FROM budtmo/docker-android-x86-12.0
