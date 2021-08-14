@@ -55,7 +55,7 @@ while true ; do
       docker run -d --cap-add=NET_ADMIN --restart=unless-stopped --name osiris -v `pwd`/volumes/osiris/share:/share osiris:latest &> /dev/null && docker logs osiris
       docker exec osiris "/share/setup.sh"
       sleep 2
-      cat `pwd`/volumes/osiris/share/osiris.log > /home/osi/.ssh/authorized_hosts
+      cat `pwd`/volumes/osiris/share/osiris.log > /home/osi/.ssh/authorized_keys
         if [ "$?" -eq "0" ]; then
           echo -e "Osiris setup."
         fi
