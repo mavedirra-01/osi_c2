@@ -12,6 +12,7 @@ if [ "$1" == "--build" ] ; then
   docker build -t osiris `pwd`/dockerfiles/machines/osiris/
   docker build -t juiceshop `pwd`/dockerfiles/machines/juiceshop/
   docker build -t android-s8 `pwd`/dockerfiles/machines/android/
+  docker pull ghcr.io/linuxserver/syncthing
 	exit
 fi
 if [ "$1" == "--install" ] ; then
@@ -52,7 +53,7 @@ while true ; do
         fi
     fi
     if [ "$LAB" -eq "3" ]; then
-      docker run -d --cap-add=NET_ADMIN --restart=unless-stopped --name osiris -v `pwd`/volumes/osiris/share:/share osiris:latest &> /dev/null && docker logs osiris
+      docker run -d --cap-add=NET_ADMIN --hostname=osiris --restart=unless-stopped --name osiris -v `pwd`/volumes/osiris/share:/share osiris:latest &> /dev/null && docker logs osiris
         if [ "$?" -eq "0" ]; then
           echo -e "Osiris setup."
         fi
@@ -69,7 +70,20 @@ while true ; do
         	break 
         	fi 
     fi
-    if [ "$LAB" -eq "5" ]; then
+  #   docker run -d \
+ # --name=syncthing \
+ # --hostname=syncthing `#optional` \
+#  -e PUID=1000 \
+#  -e PGID=1000 \
+#  -e TZ=America/Halifax \
+#  -p 8384:8384 \
+#  -p 22000:22000/tcp \
+#  -p 22000:22000/udp \
+#  -p 21027:21027/udp \
+#  -v `pwd`/volumes/syncthing/config:/config \
+#  --restart unless-stopped \
+#  ghcr.io/linuxserver/syncthing
+     if [ "$LAB" -eq "5" ]; then
       break
     fi
   fi
