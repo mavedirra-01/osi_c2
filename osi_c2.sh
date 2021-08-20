@@ -53,7 +53,9 @@ while true ; do
         fi
     fi
     if [ "$LAB" -eq "3" ]; then
-      docker run -d --cap-add=NET_ADMIN --device=/dev/net/tun --hostname=osiris --restart=unless-stopped --name osiris -v `pwd`/volumes/osiris/share:/share osiris:latest &> /dev/null && docker logs osiris
+      docker run -d --cap-add=NET_ADMIN --device=/dev/net/tun --hostname=osiris --restart=unless-stopped --name osiris -v `pwd`/volumes/osiris/share:/share osiris:latest &> /dev/null && docker logs osiris && \
+        docker exec -it osiris service openvpn start 
+      printf "${g}VPN IP: http://192.168.255.14:6080/index.html${rc}\n "
         if [ "$?" -eq "0" ]; then
           echo -e "Osiris setup."
         fi

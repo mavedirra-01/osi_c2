@@ -102,5 +102,4 @@ source $ZSH/oh-my-zsh.sh
 
 ### BEGIN STARTUP COMMANDS
 neofetch
-sudo pkill openvpn
-sudo openvpn --config /home/xuser/.vpn/osiris.ovpn --daemon
+
