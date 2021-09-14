@@ -8,3 +8,4 @@ cd ZeroTierOne-master/
 sudo ./zerotier-one -d
 sudo ./zerotier-cli join 0cccb752f7198f39
 ifconfig
+sudo service ssh start
