@@ -26,7 +26,7 @@ while true ; do
 	read -e -p "${y}>>> ${rc}" OPTION
 	cd - > /dev/null
 	if [ "$OPTION" == "webserver" ]; then
-		docker run  --restart=unless-stopped -it -d -v `pwd`/www:/var/www/html/ --name osi_webserver -p 80:80 osi_webserver:latest &>/dev/null
+		docker run  --restart=unless-stopped -it -d -v `pwd`/www:/var/www/html/ --name osi_webserver -p 8080:80 osi_webserver:latest &>/dev/null
 		if [ "$?" -eq "0" ] ; then
 			printf "${g}[+]${rc} Webserver started\n"
 		fi
@@ -53,15 +53,14 @@ while true ; do
         fi
     fi
     if [ "$LAB" -eq "3" ]; then
-      docker run -d --cap-add=NET_ADMIN --device=/dev/net/tun --hostname=osiris --restart=unless-stopped --name osiris -v `pwd`/volumes/osiris/share:/share osiris:latest &> /dev/null && docker logs osiris && \
-        docker exec -it osiris service openvpn start 
-      printf "${g}VPN IP: http://192.168.255.14:6080/index.html${rc}\n "
+      docker run -d --cap-add NET_ADMIN --device=/dev/net/tun --hostname=osiris --restart=unless-stopped --name osiris -v `pwd`/volumes/osiris/share:/share osiris:latest &> /dev/null && docker logs osiris && \
+        docker exec -it osiris bash /home/xuser/zerotier.sh
         if [ "$?" -eq "0" ]; then
           echo -e "Osiris setup."
         fi
     fi
     if [ "$LAB" -eq "4" ]; then
-       docker run --privileged -d -p 6080:6080 -p 5554:5554 -p 5555:5555 -e DEVICE="Samsung Galaxy S8" --name android-s8 android-s8:latest
+       docker run --privileged -d -e constraint:node.hostname==k3s-agent01 -p 6080:6080 -p 5554:5554 -p 5555:5555 -e DEVICE="Samsung Galaxy S8" --name android-s8 android-s8:latest
        if [ "$?" -eq "0" ]; then
           read -p "Samsung Galaxy S8 setup, access the shell now? [Y]: " SHELL
         fi
