@@ -16,8 +16,8 @@ if [ "$1" == "--build" ] ; then
 	exit
 fi
 if [ "$1" == "--install" ] ; then
-	sudo usermod -aG docker $USERNAME
 	curl https://get.docker.com/ | sudo sh
+	sudo usermod -aG docker $USERNAME
 	exit
 fi
 printf "${g}Type help for options, type q! to quit.${rc}\n"
